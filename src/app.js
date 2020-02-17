@@ -1,8 +1,8 @@
 const express = require("express");
 const app = express();
 
-const { generateRandomId } = require("./utils/generateRandomId");
 const stocksRouter = require("./routes/stocks.routes");
+const usersRouter = require("./routes/users.route");
 
 app.use(express.json());
 
@@ -21,11 +21,11 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use("/users", usersRouter);
 app.use("/stocks", stocksRouter);
 
-console.log(generateRandomId());
-
 app.use((err, req, res, next) => {
+  console.log(err);
   res.status(err.statusCode || 500);
   if (err.statusCode) {
     res.send({ error: err.message });

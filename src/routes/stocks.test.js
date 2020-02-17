@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 const app = require("../app");
 const Stocks = require("../models/stocks.model");
-const { mockStockData } = require("../utils/mockData");
+const { mockStockData, mockDatabase } = require("../utils/mockData");
 
 mongoose.set("useNewUrlParser", true);
 mongoose.set("useFindAndModify", false);
@@ -52,12 +52,20 @@ describe("stocks", () => {
   it("POST /stocks should add a new stock to the database", async () => {
     const expectedStock = {
       id: "9cc1492b-6e2e-5777-db10-bf3dd79f",
-      quote: "MSFT"
+      quote: "MSFT",
+      forecast: []
     };
     const { body: addedStock } = await request(app)
       .post("/stocks")
       .send(expectedStock)
       .expect(201);
     expect(addedStock).toMatchObject(expectedStock);
+  });
+  it("GET /stocks/:quote should return company with the specific quote", async () => {
+    const quote = mockDatabase[0].quote;
+    const { body: selectedStock } = await request(app)
+      .get(`/stocks/${quote}`)
+      .expect(200);
+    expect(selectedStock.quote).toEqual(mockDatabase[0].quote);
   });
 });
