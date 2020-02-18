@@ -60,6 +60,12 @@ describe("users", () => {
     expect(userInfo.username).toEqual(mockUser.username);
     expect(userInfo.password).not.toEqual(mockUser.password);
   });
+  it("POST /users/logout should log a user out", async () => {
+    const { text: message } = await request(app)
+      .post("/users/logout")
+      .expect(200);
+    expect(message).toBe("You are now logged out!");
+  });
   it("POST /users/login should log a user in when password is correct", async () => {
     const rightUser = {
       username: "stockguru",
@@ -70,5 +76,16 @@ describe("users", () => {
       .send(rightUser)
       .expect(200);
     expect(message).toBe("You are now logged in!");
+  });
+  it("POST /users/login should not log in when password is incorrect", async () => {
+    const wrongUser = {
+      username: "stockguru",
+      password: "1234567890"
+    };
+    const { body: error } = await request(app)
+      .post("/users/login")
+      .send(wrongUser)
+      .expect(401);
+    expect(error).toEqual({ error: "Login failed." });
   });
 });

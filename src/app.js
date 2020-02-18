@@ -1,9 +1,12 @@
 const express = require("express");
 const app = express();
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const stocksRouter = require("./routes/stocks.routes");
 const usersRouter = require("./routes/users.route");
 
+app.use(cookieParser());
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -12,12 +15,14 @@ app.get("/", (req, res) => {
     "1": "GET /stocks",
     "2": "POST /stocks",
     "3": "GET /stocks/:quote",
-    "4": "POST/stocks/:quote/forecast",
-    "5": "DELETE /stocks/:quote/forecast",
-    "6": "GET /users/:username",
-    "7": "POST /users/register",
-    "8": "POST /users/login",
-    "9": "POST /users/logout"
+    "4": "GET/stocks/:quote/forecast",
+    "5": "POST/stocks/:quote/forecast",
+    "6": "PATCH/stocks/:quote/forecast/:id",
+    "7": "DELETE /stocks/:quote/forecast/:id",
+    "8": "GET /users/:username",
+    "9": "POST /users/register",
+    "10": "POST /users/login",
+    "11": "POST /users/logout"
   });
 });
 

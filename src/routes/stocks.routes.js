@@ -7,6 +7,7 @@ const {
   V_FIELD,
   MONGOID_FIELD
 } = require("../utils/constantFields");
+const protectRoute = require("../middlewares/auth");
 const wrapAsync = require("../utils/wrapAsync");
 
 router.get(
@@ -36,6 +37,23 @@ router.get(
     const quote = req.params.quote;
     const filteredStock = await Stocks.findOne({ quote });
     res.status(200).send(filteredStock);
+  })
+);
+
+router.post(
+  "/:quote/forecast",
+  protectRoute,
+  wrapAsync(async (req, res, next) => {
+    const quote = req.params.quote;
+    const newForecast = req.body;
+    newForecast.id = uuidv4();
+    newForecast.username = req.user.username;
+    newForecast.userId = req.user.userId;
+    const filteredStock = await Stocks.findOneAndUpdate(
+      { quote },
+      { $push: { forecast: newForecast } }
+    );
+    res.status(201).send(newForecast);
   })
 );
 

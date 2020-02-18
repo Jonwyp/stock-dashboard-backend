@@ -5,6 +5,8 @@ const protectRoute = (req, res, next) => {
     if (!req.cookies.token) {
       throw new Error("You are not authorized!");
     }
+    req.user = jwt.verify(req.cookies.token, process.env.JWT_SECRET_KEY);
+    console.log(req.user);
     next();
   } catch (err) {
     err.statusCode = 401;

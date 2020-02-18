@@ -5,7 +5,12 @@ const jwt = require("jsonwebtoken");
 
 const app = require("../app");
 const Stocks = require("../models/stocks.model");
-const { mockStockData, mockDatabase } = require("../utils/mockData");
+const Users = require("../models/users.model");
+const {
+  mockStockData,
+  mockDatabase,
+  mockUserData
+} = require("../utils/mockData");
 
 mongoose.set("useNewUrlParser", true);
 mongoose.set("useFindAndModify", false);
@@ -33,10 +38,12 @@ describe("stocks", () => {
 
   beforeEach(async () => {
     await Stocks.create(mockStockData);
+    await Users.create(mockUserData);
   });
 
   afterEach(async () => {
     jest.resetAllMocks();
+    await Users.deleteMany();
     await Stocks.deleteMany();
   });
   it("GET /stocks should return stock info without forecast", async () => {
@@ -67,5 +74,40 @@ describe("stocks", () => {
       .get(`/stocks/${quote}`)
       .expect(200);
     expect(selectedStock.quote).toEqual(mockDatabase[0].quote);
+  });
+  it("POST /stocks/:quote/forecast should add review to a company", async () => {
+    const quote = mockDatabase[0].quote;
+    const expectedForecast = {
+      userId: "efda0939-3101-f362-83fd-f3936fa3",
+      username: "stockguru",
+      position: "neutral",
+      targetPrice: "380",
+      timeFrame: "3 months",
+      title: "AAPL to be rangebound due to COVID-19 uncertainty",
+      rationale:
+        "APPL announced that virus will have an impact on ongoing iPhone sales"
+    };
+    const newForecast = {
+      position: "neutral",
+      targetPrice: "380",
+      timeFrame: "3 months",
+      title: "AAPL to be rangebound due to COVID-19 uncertainty",
+      rationale:
+        "APPL announced that virus will have an impact on ongoing iPhone sales"
+    };
+    jwt.verify.mockReturnValueOnce({
+      userId: expectedForecast.userId,
+      username: expectedForecast.username
+    });
+    const { body: actualForecast } = await request(app)
+      .post(`/stocks/${quote}/forecast`)
+      .set("Cookie", "token=valid-token")
+      .send(newForecast)
+      .expect(201);
+    expect(actualForecast).toMatchObject(expectedForecast);
+    expect(actualForecast).toHaveProperty("id");
+    expect(actualForecast).not.toHaveProperty("_id");
+
+    expect(jwt.verify).toHaveBeenCalledTimes(1);
   });
 });

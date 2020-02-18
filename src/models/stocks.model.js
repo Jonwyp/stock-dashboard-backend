@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const stockForecast = new Schema(
   {
     id: { type: String, required: true, unique: true },
-    userId: { type: String, required: true, unique: true },
+    userId: { type: String, required: true },
     position: {
       type: String,
       enum: ["long", "neutral", "short"],

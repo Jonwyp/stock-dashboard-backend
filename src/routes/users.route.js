@@ -38,8 +38,8 @@ router.post("/logout", (req, res) => {
   res.clearCookie("token").send("You are now logged out!");
 });
 
-const createJWTToken = (id, username) => {
-  const payload = { id, username };
+const createJWTToken = (userId, username) => {
+  const payload = { userId, username };
   const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
   return token;
 };
@@ -58,8 +58,7 @@ router.post("/login", async (req, res, next) => {
     const expiryDate = new Date(Date.now() + oneDay);
 
     res.cookie("token", token, {
-      expires: expiryDate,
-      httpOnly: true
+      expires: expiryDate
     });
     res.send("You are now logged in!");
   } catch (err) {
