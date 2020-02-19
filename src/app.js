@@ -15,27 +15,31 @@ app.get("/", (req, res) => {
     "1": "GET /stocks",
     "2": "POST /stocks",
     "3": "GET /stocks/:quote",
-    "4": "GET/stocks/:quote/forecast",
-    "5": "POST/stocks/:quote/forecast",
-    "6": "PATCH/stocks/:quote/forecast/:id",
-    "7": "DELETE /stocks/:quote/forecast/:id",
-    "8": "GET /users/:username",
-    "9": "POST /users/register",
-    "10": "POST /users/login",
-    "11": "POST /users/logout"
+    "4": "POST/stocks/:quote/forecast",
+    "5": "PATCH/stocks/:quote/forecast/:id",
+    "6": "DELETE /stocks/:quote/forecast/:id",
+    "7": "GET /users/:username",
+    "8": "POST /users/register",
+    "9": "POST /users/login",
+    "10": "POST /users/logout"
   });
 });
 
 app.use("/users", usersRouter);
 app.use("/stocks", stocksRouter);
 
+app.all("/*", (req, res, next) => {
+  const err = new Error("Page not found.");
+  err.statusCode = 404;
+  next(err);
+});
+
 app.use((err, req, res, next) => {
-  console.log(err);
   res.status(err.statusCode || 500);
   if (err.statusCode) {
     res.send({ error: err.message });
   } else {
-    res.send({ error: "Internal server error" });
+    res.send({ error: "Internal server error." });
   }
 });
 module.exports = app;

@@ -1,50 +1,40 @@
 const express = require("express");
 const router = express.Router();
-const Users = require("../models/users.model");
 const uuidv4 = require("uuid/v4");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+
+const Users = require("../models/users.model");
 const {
   ID_FIELD,
   USERNAME_FIELD,
   FIRSTNAME_FIELD,
   LASTNAME_FIELD
 } = require("../utils/constantFields");
+const { createJWTToken } = require("../middlewares/auth");
 const wrapAsync = require("../utils/wrapAsync");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 
-router.get(
-  "/:username",
-  wrapAsync(async (req, res, next) => {
-    const username = req.params.username;
-    const projections = `${ID_FIELD} ${USERNAME_FIELD} ${FIRSTNAME_FIELD} ${LASTNAME_FIELD}`;
-    const filteredUser = await Users.findOne({ username }, projections);
-    res.status(200).send(filteredUser);
-  })
-);
-
-router.post(
-  "/register",
-  wrapAsync(async (req, res, next) => {
-    const user = req.body;
-    const newUser = new Users(user);
-    await Users.init();
-    newUser.id = uuidv4();
-    await newUser.save();
-    res.status(201).send(newUser);
-  })
-);
-
-router.post("/logout", (req, res) => {
-  res.clearCookie("token").send("You are now logged out!");
-});
-
-const createJWTToken = (userId, username) => {
-  const payload = { userId, username };
-  const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
-  return token;
+const showUserInfo = async (req, res, next) => {
+  const username = req.params.username;
+  const projections = `${ID_FIELD} ${USERNAME_FIELD} ${FIRSTNAME_FIELD} ${LASTNAME_FIELD}`;
+  const filteredUser = await Users.findOne({ username }, projections);
+  res.status(200).send(filteredUser);
 };
 
-router.post("/login", async (req, res, next) => {
+const registerNewUser = async (req, res, next) => {
+  const user = req.body;
+  const newUser = new Users(user);
+  await Users.init();
+  newUser.id = uuidv4();
+  await newUser.save();
+  res.status(201).send(newUser);
+};
+
+const logoutUser = (req, res, next) => {
+  res.clearCookie("token").send("You are now logged out!");
+};
+
+const loginUser = async (req, res, next) => {
   try {
     const { username, password } = req.body;
     const user = await Users.findOne({ username });
@@ -67,10 +57,15 @@ router.post("/login", async (req, res, next) => {
     }
     next(err);
   }
-});
+};
+
+router.get("/:username", wrapAsync(showUserInfo));
+router.post("/register", wrapAsync(registerNewUser));
+router.post("/logout", wrapAsync(logoutUser));
+router.post("/login", loginUser);
 
 router.use((err, req, res, next) => {
-  if (err.name === "ValidateError") {
+  if (err.name === "ValidationError") {
     err.statusCode = 400;
   }
   next(err);

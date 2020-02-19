@@ -6,7 +6,6 @@ const protectRoute = (req, res, next) => {
       throw new Error("You are not authorized!");
     }
     req.user = jwt.verify(req.cookies.token, process.env.JWT_SECRET_KEY);
-    console.log(req.user);
     next();
   } catch (err) {
     err.statusCode = 401;
@@ -14,4 +13,10 @@ const protectRoute = (req, res, next) => {
   }
 };
 
-module.exports = protectRoute;
+const createJWTToken = (userId, username) => {
+  const payload = { userId, username };
+  const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
+  return token;
+};
+
+module.exports = { protectRoute, createJWTToken };

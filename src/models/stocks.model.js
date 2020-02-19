@@ -5,6 +5,7 @@ const stockForecast = new Schema(
   {
     id: { type: String, required: true, unique: true },
     userId: { type: String, required: true },
+    username: String,
     position: {
       type: String,
       enum: ["long", "neutral", "short"],
@@ -24,7 +25,7 @@ const stockForecast = new Schema(
 
 const stocksSchema = new Schema({
   id: { type: String, required: true, unique: true },
-  quote: { type: String, minlength: 4, maxlength: 5 },
+  quote: { type: String, minlength: 1, maxlength: 5, unique: true },
   forecast: [stockForecast]
 });
 

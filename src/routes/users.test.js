@@ -6,6 +6,10 @@ const jwt = require("jsonwebtoken");
 const app = require("../app");
 const Users = require("../models/users.model");
 const { mockUser, mockUserData } = require("../utils/mockData");
+const {
+  setupMongoServer,
+  tearDownMongoServer
+} = require("../utils/testingmongoose");
 
 mongoose.set("useNewUrlParser", true);
 mongoose.set("useFindAndModify", false);
@@ -17,18 +21,11 @@ jest.mock("jsonwebtoken");
 describe("users", () => {
   let mongoServer;
   beforeAll(async () => {
-    try {
-      mongoServer = new MongoMemoryServer();
-      const mongoUri = await mongoServer.getConnectionString();
-      await mongoose.connect(mongoUri);
-    } catch (err) {
-      console.error(err);
-    }
+    mongoServer = await setupMongoServer();
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    await tearDownMongoServer(mongoServer);
   });
 
   beforeEach(async () => {
@@ -59,6 +56,30 @@ describe("users", () => {
       .expect(201);
     expect(userInfo.username).toEqual(mockUser.username);
     expect(userInfo.password).not.toEqual(mockUser.password);
+  });
+  it("POST /users/register should throw 500 error if user is a duplicate", async () => {
+    const duplicateUser = mockUserData[0];
+    const { body: error } = await request(app)
+      .post("/users/register")
+      .send(duplicateUser)
+      .expect(500);
+    expect(error).toEqual({ error: "Internal server error." });
+  });
+  it("POST /users/register should throw 400 error if firstname is missing", async () => {
+    const duplicateUser = {
+      id: "d5a6dcd6-ee26-04f9-9ec7-85834271f082",
+      username: "stocknoob",
+      password: "123456789",
+      lastName: "Wong",
+      email: "jonwong@expressmail.com"
+    };
+    const { body: error } = await request(app)
+      .post("/users/register")
+      .send(duplicateUser)
+      .expect(400);
+    expect(error).toEqual({
+      error: "Users validation failed: firstName: Path `firstName` is required."
+    });
   });
   it("POST /users/logout should log a user out", async () => {
     const { text: message } = await request(app)

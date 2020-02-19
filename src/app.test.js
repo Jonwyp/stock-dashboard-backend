@@ -10,4 +10,10 @@ describe("app.js", () => {
       .expect(200);
     expect(expectedEndpoints).toEqual(endpoints);
   });
+  it("GET /* should return a 404 page not found", async () => {
+    const { body: error } = await request(app)
+      .get("/*")
+      .expect(404);
+    expect(error).toEqual({error: "Page not found."})
+  });
 });
