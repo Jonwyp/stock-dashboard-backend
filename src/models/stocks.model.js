@@ -3,7 +3,12 @@ const Schema = mongoose.Schema;
 
 const stockForecast = new Schema(
   {
-    id: { type: String, required: true, unique: true },
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+      partialFilterExpression: { $exists: true }
+    },
     userId: { type: String, required: true },
     username: String,
     position: {
