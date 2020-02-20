@@ -38,6 +38,15 @@ const findOneStock = async (req, res, next) => {
   res.status(200).send(filteredStock);
 };
 
+const findOneStockForecasts = async (req, res, next) => {
+  const quote = req.params.quote;
+  if (!(await Stocks.exists({ quote }))) {
+    return res.sendStatus(204);
+  }
+  const filteredStock = await Stocks.findOne({ quote });
+  res.status(200).send(filteredStock.forecast);
+};
+
 const createNewForecast = async (req, res, next) => {
   const quote = req.params.quote;
   const newForecast = req.body;
@@ -113,6 +122,7 @@ const deleteOneForecast = async (req, res, next) => {
 router.get("/", wrapAsync(findAllStocksWithProjections));
 router.post("/", wrapAsync(createNewStock));
 router.get("/:quote", wrapAsync(findOneStock));
+router.get("/:quote/forecast", wrapAsync(findOneStockForecasts));
 router.post("/:quote/forecast", protectRoute, wrapAsync(createNewForecast));
 router.patch("/:quote/forecast/:id", protectRoute, wrapAsync(editOneForecast));
 router.delete(

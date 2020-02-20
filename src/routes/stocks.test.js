@@ -95,6 +95,22 @@ describe("stocks", () => {
     expect(selectedStock).toEqual({});
   });
 
+  it("GET /stocks/:quote/forecast should return forecast for company of specific quote", async () => {
+    const quote = mockDatabase[0].quote;
+    const { body: forecasts } = await request(app)
+      .get(`/stocks/${quote}/forecast`)
+      .expect(200);
+    expect(forecasts).toMatchObject(mockDatabase[0].forecast);
+  });
+
+  it("GET /stocks/:quote/forecast should return 204 if quote does not exist", async () => {
+    const quote = "MONK";
+    const { body: selectedStock } = await request(app)
+      .get(`/stocks/${quote}/forecast`)
+      .expect(204);
+    expect(selectedStock).toEqual({});
+  });
+
   it("POST /stocks/:quote/forecast should add review to a company when user is logged in", async () => {
     const quote = mockDatabase[0].quote;
     const expectedForecast = {
