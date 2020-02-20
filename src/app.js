@@ -7,7 +7,11 @@ const stocksRouter = require("./routes/stocks.routes");
 const usersRouter = require("./routes/users.route");
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://localhost:3001"],
+  origin: [
+    process.env.FRONTEND_URI,
+    "http://localhost:3000",
+    "http://localhost:3001"
+  ],
   credentials: true
 };
 
