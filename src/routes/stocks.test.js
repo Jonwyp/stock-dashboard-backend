@@ -6,20 +6,11 @@ const jwt = require("jsonwebtoken");
 const app = require("../app");
 const Stocks = require("../models/stocks.model");
 const Users = require("../models/users.model");
-const {
-  mockStockData,
-  mockDatabase,
-  mockUserData
-} = require("../utils/mockData");
+const { mockDatabase, mockUserData } = require("../utils/mockData");
 const {
   setupMongoServer,
   tearDownMongoServer
 } = require("../utils/testingmongoose");
-
-mongoose.set("useNewUrlParser", true);
-mongoose.set("useFindAndModify", false);
-mongoose.set("useCreateIndex", true);
-mongoose.set("useUnifiedTopology", true);
 
 jest.mock("jsonwebtoken");
 
@@ -43,6 +34,7 @@ describe("stocks", () => {
     await Users.deleteMany();
     await Stocks.deleteMany();
   });
+
   it("GET /stocks should return stock info without forecast", async () => {
     const expectedStock = [
       {
@@ -59,6 +51,21 @@ describe("stocks", () => {
       .expect(200);
     expect(actualStock).toMatchObject(expectedStock);
   });
+
+  it("GET /stocks should throw 500 error if there is an internal server error", async () => {
+    const origStockFind = Stocks.find;
+    Stocks.find = jest.fn();
+    Stocks.find.mockImplementationOnce(() => {
+      const err = new Error();
+      throw err;
+    });
+    const { body: error } = await request(app)
+      .get("/stocks")
+      .expect(500);
+    expect(error).toEqual({ error: "Internal server error." });
+    Stocks.find = origStockFind;
+  });
+
   it("POST /stocks should add a new stock to the database", async () => {
     const expectedStock = {
       id: "9cc1492b-6e2e-5777-db10-bf3dd79f",
@@ -71,6 +78,7 @@ describe("stocks", () => {
       .expect(201);
     expect(addedStock).toMatchObject(expectedStock);
   });
+
   it("GET /stocks/:quote should return company with the specific quote", async () => {
     const quote = mockDatabase[0].quote;
     const { body: selectedStock } = await request(app)
@@ -78,6 +86,7 @@ describe("stocks", () => {
       .expect(200);
     expect(selectedStock.quote).toEqual(mockDatabase[0].quote);
   });
+
   it("POST /stocks/:quote/forecast should add review to a company when user is logged in", async () => {
     const quote = mockDatabase[0].quote;
     const expectedForecast = {
@@ -113,6 +122,7 @@ describe("stocks", () => {
 
     expect(jwt.verify).toHaveBeenCalledTimes(1);
   });
+
   it("POST /stocks/:quote/forecast should return 401 if not signed in", async () => {
     const quote = mockDatabase[0].quote;
     const newForecast = {
@@ -132,6 +142,7 @@ describe("stocks", () => {
     expect(message).toEqual({ error: "You are not authorized!" });
     expect(jwt.verify).not.toHaveBeenCalled();
   });
+
   it("POST /stocks/:quote/forecast should return 400 if fields are missing", async () => {
     const quote = mockDatabase[0].quote;
     const newForecast = {
@@ -155,6 +166,7 @@ describe("stocks", () => {
 
     expect(jwt.verify).toHaveBeenCalledTimes(1);
   });
+
   it("PATCH /stocks/:quote/forecast/:id should allow forecast to be edited", async () => {
     jwt.verify.mockReturnValueOnce({
       userId: "efda0939-3101-f362-83fd-f3936fa3",
@@ -170,6 +182,7 @@ describe("stocks", () => {
       .expect(200);
     expect(editedForecast).toMatchObject(editField);
   });
+
   it("PATCH /stocks/:quote/forecast/:id should not allow forecast to be edited after x days", async () => {
     jwt.verify.mockReturnValueOnce({
       userId: "0aaa648b-5d1d-bfc8-af4b-b1597a95",
@@ -178,6 +191,7 @@ describe("stocks", () => {
     const quote = mockDatabase[1].quote;
     const id = mockDatabase[1].forecast[1].id;
     const editField = { title: "Hahahaha", rationale: "HELLO" };
+
     const { body: editedForecast } = await request(app)
       .patch(`/stocks/${quote}/forecast/${id}`)
       .set("Cookie", "token=valid-token")
@@ -187,6 +201,7 @@ describe("stocks", () => {
       error: "Unable to edit forecast after post is locked."
     });
   });
+
   it("PATCH /stocks/:quote/forecast/:id should not allow forecast to be edited if user is not original creator", async () => {
     jwt.verify.mockReturnValueOnce({
       userId: "efda0939-3101-f362-83fd-f3936fa3",
@@ -204,6 +219,7 @@ describe("stocks", () => {
       error: "You do not have permission to edit this post."
     });
   });
+
   it("DELETE /stocks/:quote/forecast/:id should delete forecast with corresponding id", async () => {
     const expectedForecast = {
       id: "34298392-1ff3-0fb0-573f-72f44e15",
@@ -227,6 +243,7 @@ describe("stocks", () => {
       .expect(200);
     expect(deletedForecast).toMatchObject(expectedForecast);
   });
+
   it("DELETE /stocks/:quote/forecast/:id should not delete forecast after x days", async () => {
     const expectedForecast = {
       id: "34298392-1ff3-0fb0-573f-72f44e15",
@@ -252,6 +269,7 @@ describe("stocks", () => {
       error: "Unable to delete forecast after post is locked."
     });
   });
+
   it("DELETE /stocks/:quote/forecast/:id should not delete forecast if user is not original creator", async () => {
     const expectedForecast = {
       id: "34298392-1ff3-0fb0-573f-72f44e15",
@@ -276,5 +294,20 @@ describe("stocks", () => {
     expect(error).toEqual({
       error: "You do not have permission to delete this post."
     });
+  });
+
+  it("POST /stocks/seed should seed items into the database", async () => {
+    await Stocks.deleteMany();
+    const { text: message } = await request(app)
+      .post("/stocks/seed")
+      .expect(201);
+    expect(message).toBe("Stock database seeded.");
+  });
+
+  it("POST /stocks/seed should seed items into the database", async () => {
+    const { body: message } = await request(app)
+      .post("/stocks/seed")
+      .expect(422);
+    expect(message).toEqual({ error: "E11000 duplicate error." });
   });
 });

@@ -61,9 +61,11 @@ const editOneForecast = async (req, res, next) => {
 
   const filteredStock = await Stocks.findOne({ quote });
   const index = filteredStock.forecast.map(forecast => forecast.id).indexOf(id);
-  const createdDate = filteredStock.forecast[index].createdAt;
+  const selectedForecast = filteredStock.forecast[index];
+  const createdDate = selectedForecast.createdAt;
   const expiryDate = editPermissionExpiry(createdDate);
   const userId = filteredStock.forecast[index].userId;
+
   if (userId != req.user.userId) {
     const err = new Error("You do not have permission to edit this post.");
     err.statusCode = 403;
@@ -74,19 +76,22 @@ const editOneForecast = async (req, res, next) => {
     err.statusCode = 423;
     next(err);
   }
-  Object.assign(filteredStock.forecast[index], editForecast);
+  Object.assign(selectedForecast, editForecast);
+  selectedForecast.username = req.user.username;
   await filteredStock.save();
-  res.status(200).send(filteredStock.forecast[index]);
+  res.status(200).send(selectedForecast);
 };
 
 const deleteOneForecast = async (req, res, next) => {
   const quote = req.params.quote;
   const id = req.params.id;
+
   const filteredStock = await Stocks.findOne({ quote });
   const index = filteredStock.forecast.map(forecast => forecast.id).indexOf(id);
   const createdDate = filteredStock.forecast[index].createdAt;
   const expiryDate = editPermissionExpiry(createdDate);
   const userId = filteredStock.forecast[index].userId;
+
   if (userId != req.user.userId) {
     const err = new Error("You do not have permission to delete this post.");
     err.statusCode = 403;
@@ -117,6 +122,10 @@ router.post("/seed", seedDatabase);
 router.use((err, req, res, next) => {
   if (err.name === "ValidationError") {
     err.statusCode = 400;
+  }
+  if (err.name === "MongoError" && err.code === 11000) {
+    err.statusCode = 422;
+    err.message = "E11000 duplicate error.";
   }
   next(err);
 });

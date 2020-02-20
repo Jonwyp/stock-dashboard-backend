@@ -14,6 +14,6 @@ describe("app.js", () => {
     const { body: error } = await request(app)
       .get("/*")
       .expect(404);
-    expect(error).toEqual({error: "Page not found."})
+    expect(error).toEqual({ error: "Page not found." });
   });
 });

@@ -3,10 +3,8 @@ const Schema = mongoose.Schema;
 
 const stockForecast = new Schema(
   {
-    id: {
-      type: String,
-      required: true},
-    userId: { type: String, required: true },
+    id: { type: String, immutable: true, required: true },
+    userId: { type: String, immutable: true, required: true },
     username: String,
     position: {
       type: String,
@@ -31,12 +29,15 @@ const stocksSchema = new Schema({
   forecast: [stockForecast]
 });
 
-stocksSchema.index({ "forecast.id" : 1 }, {
-  unique: true,
-  partialFilterExpression: {
-    "forecast.id": { $exists: true }
+stocksSchema.index(
+  { "forecast.id": 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      "forecast.id": { $exists: true }
+    }
   }
-});
+);
 
 const Stocks = mongoose.model("Stocks", stocksSchema);
 

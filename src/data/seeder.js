@@ -5,7 +5,7 @@ const Stocks = require("../models/stocks.model");
 const seedDatabase = async (req, res, next) => {
   try {
     await Stocks.create(fjson);
-    res.status(200).send("Stock database seeded.");
+    res.status(201).send("Stock database seeded.");
   } catch (err) {
     console.log(
       "Stocks already exist in the database. Existing stocks are not replaced."

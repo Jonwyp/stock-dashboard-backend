@@ -2,6 +2,7 @@ const request = require("supertest");
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 const jwt = require("jsonwebtoken");
+const Stocks = require("../models/stocks.model");
 
 const app = require("../app");
 const Users = require("../models/users.model");
@@ -10,11 +11,6 @@ const {
   setupMongoServer,
   tearDownMongoServer
 } = require("../utils/testingmongoose");
-
-mongoose.set("useNewUrlParser", true);
-mongoose.set("useFindAndModify", false);
-mongoose.set("useCreateIndex", true);
-mongoose.set("useUnifiedTopology", true);
 
 jest.mock("jsonwebtoken");
 
@@ -36,6 +32,7 @@ describe("users", () => {
     jest.resetAllMocks();
     await Users.deleteMany();
   });
+  
   it("GET /users/:username should return details of correct user", async () => {
     const username = mockUserData[0].username;
     const expectedInfo = {
@@ -49,6 +46,7 @@ describe("users", () => {
       .expect(200);
     expect(userInfo).toMatchObject(expectedInfo);
   });
+  
   it("POST /users/register should create a new user", async () => {
     const { body: userInfo } = await request(app)
       .post("/users/register")
@@ -57,14 +55,16 @@ describe("users", () => {
     expect(userInfo.username).toEqual(mockUser.username);
     expect(userInfo.password).not.toEqual(mockUser.password);
   });
-  it("POST /users/register should throw 500 error if user is a duplicate", async () => {
+  
+  it("POST /users/register should throw 422 error if user is a duplicate", async () => {
     const duplicateUser = mockUserData[0];
     const { body: error } = await request(app)
       .post("/users/register")
       .send(duplicateUser)
-      .expect(500);
-    expect(error).toEqual({ error: "Internal server error." });
+      .expect(422);
+    expect(error).toEqual({ error: "E11000 duplicate error." });
   });
+  
   it("POST /users/register should throw 400 error if firstname is missing", async () => {
     const duplicateUser = {
       id: "d5a6dcd6-ee26-04f9-9ec7-85834271f082",
@@ -81,12 +81,14 @@ describe("users", () => {
       error: "Users validation failed: firstName: Path `firstName` is required."
     });
   });
+  
   it("POST /users/logout should log a user out", async () => {
     const { text: message } = await request(app)
       .post("/users/logout")
       .expect(200);
     expect(message).toBe("You are now logged out!");
   });
+  
   it("POST /users/login should log a user in when password is correct", async () => {
     const rightUser = {
       username: "stockguru",

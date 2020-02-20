@@ -7,7 +7,7 @@
     "start": "node src/index.js",
     "startd": "nodemon src/index.js",
     "startdb": "mongod --dbpath ~/data/db",
-    "test": "jest --watchAll",
+    "test": "jest --watchAll --runInBand",
     "testc": "jest --coverage --watchAll=false"
   },
   "keywords": [],
