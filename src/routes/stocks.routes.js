@@ -31,6 +31,9 @@ const createNewStock = async (req, res, next) => {
 
 const findOneStock = async (req, res, next) => {
   const quote = req.params.quote;
+  if (!(await Stocks.exists({ quote }))) {
+    return res.sendStatus(204);
+  }
   const filteredStock = await Stocks.findOne({ quote });
   res.status(200).send(filteredStock);
 };

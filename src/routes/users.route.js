@@ -13,9 +13,15 @@ const {
 } = require("../utils/constantFields");
 const { createJWTToken } = require("../middlewares/auth");
 const wrapAsync = require("../utils/wrapAsync");
+const { protectRoute } = require("../middlewares/auth");
 
 const showUserInfo = async (req, res, next) => {
   const username = req.params.username;
+  if (req.user.username !== username) {
+    const err = new Error("You do not have permission to view this user.");
+    err.statusCode = 403;
+    next(err);
+  }
   const projections = `${ID_FIELD} ${USERNAME_FIELD} ${FIRSTNAME_FIELD} ${LASTNAME_FIELD}`;
   const filteredUser = await Users.findOne({ username }, projections);
   res.status(200).send(filteredUser);
@@ -52,7 +58,7 @@ const loginUser = async (req, res, next) => {
   res.send("You are now logged in!");
 };
 
-router.get("/:username", wrapAsync(showUserInfo));
+router.get("/:username", protectRoute, wrapAsync(showUserInfo));
 router.post("/register", wrapAsync(registerNewUser));
 router.post("/logout", wrapAsync(logoutUser));
 router.post("/login", wrapAsync(loginUser));

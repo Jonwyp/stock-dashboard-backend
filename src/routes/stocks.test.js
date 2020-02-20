@@ -87,6 +87,14 @@ describe("stocks", () => {
     expect(selectedStock.quote).toEqual(mockDatabase[0].quote);
   });
 
+  it("GET /stocks/:quote should return 204 if quote does not exist", async () => {
+    const quote = "MONK";
+    const { body: selectedStock } = await request(app)
+      .get(`/stocks/${quote}`)
+      .expect(204);
+    expect(selectedStock).toEqual({});
+  });
+
   it("POST /stocks/:quote/forecast should add review to a company when user is logged in", async () => {
     const quote = mockDatabase[0].quote;
     const expectedForecast = {
