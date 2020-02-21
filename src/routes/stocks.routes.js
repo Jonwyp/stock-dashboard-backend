@@ -121,7 +121,7 @@ const deleteOneForecast = async (req, res, next) => {
 
 router.get("/", wrapAsync(findAllStocksWithProjections));
 router.post("/", wrapAsync(createNewStock));
-router.get("/:quote", wrapAsync(findOneStock));
+router.get("/:quote", protectRoute, wrapAsync(findOneStock));
 router.get("/:quote/forecast", wrapAsync(findOneStockForecasts));
 router.post("/:quote/forecast", protectRoute, wrapAsync(createNewForecast));
 router.patch("/:quote/forecast/:id", protectRoute, wrapAsync(editOneForecast));
