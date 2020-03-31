@@ -80,33 +80,53 @@ describe("stocks", () => {
   });
 
   it("GET /stocks/:quote should return company with the specific quote", async () => {
+    jwt.verify.mockReturnValueOnce({
+      userId: "efda0939-3101-f362-83fd-f3936fa3",
+      username: "stockguru"
+    });
     const quote = mockDatabase[0].quote;
     const { body: selectedStock } = await request(app)
       .get(`/stocks/${quote}`)
+      .set("Cookie", "token=valid-token")
       .expect(200);
     expect(selectedStock.quote).toEqual(mockDatabase[0].quote);
   });
 
   it("GET /stocks/:quote should return 204 if quote does not exist", async () => {
+    jwt.verify.mockReturnValueOnce({
+      userId: "efda0939-3101-f362-83fd-f3936fa3",
+      username: "stockguru"
+    });
     const quote = "MONK";
     const { body: selectedStock } = await request(app)
       .get(`/stocks/${quote}`)
+      .set("Cookie", "token=valid-token")
       .expect(204);
     expect(selectedStock).toEqual({});
   });
 
   it("GET /stocks/:quote/forecast should return forecast for company of specific quote", async () => {
+    jwt.verify.mockReturnValueOnce({
+      userId: "efda0939-3101-f362-83fd-f3936fa3",
+      username: "stockguru"
+    });
     const quote = mockDatabase[0].quote;
     const { body: forecasts } = await request(app)
       .get(`/stocks/${quote}/forecast`)
+      .set("Cookie", "token=valid-token")
       .expect(200);
     expect(forecasts).toMatchObject(mockDatabase[0].forecast);
   });
 
   it("GET /stocks/:quote/forecast should return 204 if quote does not exist", async () => {
+    jwt.verify.mockReturnValueOnce({
+      userId: "efda0939-3101-f362-83fd-f3936fa3",
+      username: "stockguru"
+    });
     const quote = "MONK";
     const { body: selectedStock } = await request(app)
       .get(`/stocks/${quote}/forecast`)
+      .set("Cookie", "token=valid-token")
       .expect(204);
     expect(selectedStock).toEqual({});
   });
