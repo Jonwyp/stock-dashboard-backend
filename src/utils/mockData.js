@@ -13,7 +13,9 @@ const endpoints = {
   "8": "GET /users/:username",
   "9": "POST /users/register",
   "10": "POST /users/login",
-  "11": "POST /users/logout"
+  "11": "POST /users/logout",
+  "12": "GET /counters/:id",
+  "13": "PATCH /counters/:id",
 };
 
 const mockUserData = [
@@ -23,7 +25,7 @@ const mockUserData = [
     password: "123456789",
     firstName: "Jane",
     lastName: "Doe",
-    email: "janedoe@expressmail.com"
+    email: "janedoe@expressmail.com",
   },
   {
     id: "0aaa648b-5d1d-bfc8-af4b-b1597a95",
@@ -31,8 +33,8 @@ const mockUserData = [
     password: "123456789",
     firstName: "John",
     lastName: "Smith",
-    email: "johnsmith@expressmail.com"
-  }
+    email: "johnsmith@expressmail.com",
+  },
 ];
 
 const mockUser = {
@@ -41,7 +43,7 @@ const mockUser = {
   password: "123456789",
   firstName: "Jon",
   lastName: "Wong",
-  email: "jonwong@expressmail.com"
+  email: "jonwong@expressmail.com",
 };
 
 const mockStockData = {
@@ -57,7 +59,7 @@ const mockStockData = {
       title: "Apple: The New iPhone Opportunity",
       rationale:
         "One of the reasons that technology giant Apple (AAPL) has seen its shares soar to new all-time highs recently is the expected iPhone supercycle coming this year. With the company getting ready to launch new 5G compatible phones, investors are betting that iPhone upgrade rates will soar, leading to new revenue and profit records.",
-      createdAt: relevantDate
+      createdAt: relevantDate,
     },
     {
       id: "6048bd45-c7dc-0edf-a14b-c3daf10b",
@@ -69,9 +71,9 @@ const mockStockData = {
       rationale: `One analyst stated that 2019-nCoV will only have a 10% impact on iPhone shipments. Again, I find analyst comments hard to believe, as their main constituents are their own clients. Public companies are a bit more trustworthy, as they must act to benefit investors.
 
         Case in point, Sony (NYSE:SNE), a supplier to Apple, has given a much more dire warning. The word Sony's CFO used in regard to the impact of 2019-nCoV on its smartphone image sensor supply was "enormous," which is not a word that describes "10%." Sony holds 70% of the market share in this category.`,
-      createdAt: expiredDate
-    }
-  ]
+      createdAt: expiredDate,
+    },
+  ],
 };
 
 const mockDatabase = [
@@ -88,7 +90,7 @@ const mockDatabase = [
         title: "Apple: The New iPhone Opportunity",
         rationale:
           "One of the reasons that technology giant Apple (AAPL) has seen its shares soar to new all-time highs recently is the expected iPhone supercycle coming this year. With the company getting ready to launch new 5G compatible phones, investors are betting that iPhone upgrade rates will soar, leading to new revenue and profit records.",
-        createdAt: relevantDate
+        createdAt: relevantDate,
       },
       {
         id: "6048bd45-c7dc-0edf-a14b-c3daf10b",
@@ -100,9 +102,9 @@ const mockDatabase = [
         rationale: `One analyst stated that 2019-nCoV will only have a 10% impact on iPhone shipments. Again, I find analyst comments hard to believe, as their main constituents are their own clients. Public companies are a bit more trustworthy, as they must act to benefit investors.
         
         Case in point, Sony (NYSE:SNE), a supplier to Apple, has given a much more dire warning. The word Sony's CFO used in regard to the impact of 2019-nCoV on its smartphone image sensor supply was "enormous," which is not a word that describes "10%." Sony holds 70% of the market share in this category.`,
-        createdAt: expiredDate
-      }
-    ]
+        createdAt: expiredDate,
+      },
+    ],
   },
   {
     id: "9cc1492b-6e2e-5777-db10-bf3dd79f",
@@ -118,7 +120,7 @@ const mockDatabase = [
         rationale: `Microsoft appears to be on a roll on all fronts.
         
         The recently announced results sent the stock soaring to record high levels as the company delivered a stellar performance shattering all market expectations.`,
-        createdAt: relevantDate
+        createdAt: relevantDate,
       },
       {
         id: "06564fa0-095a-867a-a0b3-36f36b04",
@@ -132,10 +134,10 @@ const mockDatabase = [
         In terms of analysis of internal growth, the company is overvalued by all key parameters.
         
         Microsoft is clearly overvalued relative to the main blue chips in Nasdaq.`,
-        createdAt: expiredDate
-      }
-    ]
-  }
+        createdAt: expiredDate,
+      },
+    ],
+  },
 ];
 
 module.exports = {
@@ -143,5 +145,5 @@ module.exports = {
   mockStockData,
   mockUser,
   mockDatabase,
-  mockUserData
+  mockUserData,
 };

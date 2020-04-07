@@ -5,14 +5,15 @@ const cors = require("cors");
 
 const stocksRouter = require("./routes/stocks.routes");
 const usersRouter = require("./routes/users.route");
+const countersRouter = require("./routes/counters.routes");
 
 const corsOptions = {
   origin: [
     process.env.FRONTEND_URI,
     "http://localhost:3000",
-    "http://localhost:3001"
+    "http://localhost:3001",
   ],
-  credentials: true
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -33,12 +34,15 @@ app.get("/", (req, res) => {
     "8": "GET /users/:username",
     "9": "POST /users/register",
     "10": "POST /users/login",
-    "11": "POST /users/logout"
+    "11": "POST /users/logout",
+    "12": "GET /counters/:id",
+    "13": "PATCH /counters/:id",
   });
 });
 
 app.use("/users", usersRouter);
 app.use("/stocks", stocksRouter);
+app.use("/counters", countersRouter);
 
 app.all("/*", (req, res, next) => {
   const err = new Error("Page not found.");
@@ -54,4 +58,5 @@ app.use((err, req, res, next) => {
     res.send({ error: "Internal server error." });
   }
 });
+
 module.exports = app;

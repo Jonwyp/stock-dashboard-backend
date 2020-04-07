@@ -9,7 +9,7 @@ const Users = require("../models/users.model");
 const { mockDatabase, mockUserData } = require("../utils/mockData");
 const {
   setupMongoServer,
-  tearDownMongoServer
+  tearDownMongoServer,
 } = require("../utils/testingmongoose");
 
 jest.mock("jsonwebtoken");
@@ -39,16 +39,14 @@ describe("stocks", () => {
     const expectedStock = [
       {
         id: "573545fe-3736-59a6-3392-8e0f0589",
-        quote: "AAPL"
+        quote: "AAPL",
       },
       {
         id: "9cc1492b-6e2e-5777-db10-bf3dd79f",
-        quote: "MSFT"
-      }
+        quote: "MSFT",
+      },
     ];
-    const { body: actualStock } = await request(app)
-      .get("/stocks")
-      .expect(200);
+    const { body: actualStock } = await request(app).get("/stocks").expect(200);
     expect(actualStock).toMatchObject(expectedStock);
   });
 
@@ -59,9 +57,7 @@ describe("stocks", () => {
       const err = new Error();
       throw err;
     });
-    const { body: error } = await request(app)
-      .get("/stocks")
-      .expect(500);
+    const { body: error } = await request(app).get("/stocks").expect(500);
     expect(error).toEqual({ error: "Internal server error." });
     Stocks.find = origStockFind;
   });
@@ -70,7 +66,7 @@ describe("stocks", () => {
     const expectedStock = {
       id: "9cc1492b-6e2e-5777-db10-bf3dd79f",
       quote: "TWTR",
-      forecast: []
+      forecast: [],
     };
     const { body: addedStock } = await request(app)
       .post("/stocks")
@@ -82,7 +78,7 @@ describe("stocks", () => {
   it("GET /stocks/:quote should return company with the specific quote", async () => {
     jwt.verify.mockReturnValueOnce({
       userId: "efda0939-3101-f362-83fd-f3936fa3",
-      username: "stockguru"
+      username: "stockguru",
     });
     const quote = mockDatabase[0].quote;
     const { body: selectedStock } = await request(app)
@@ -95,7 +91,7 @@ describe("stocks", () => {
   it("GET /stocks/:quote should return 204 if quote does not exist", async () => {
     jwt.verify.mockReturnValueOnce({
       userId: "efda0939-3101-f362-83fd-f3936fa3",
-      username: "stockguru"
+      username: "stockguru",
     });
     const quote = "MONK";
     const { body: selectedStock } = await request(app)
@@ -108,7 +104,7 @@ describe("stocks", () => {
   it("GET /stocks/:quote/forecast should return forecast for company of specific quote", async () => {
     jwt.verify.mockReturnValueOnce({
       userId: "efda0939-3101-f362-83fd-f3936fa3",
-      username: "stockguru"
+      username: "stockguru",
     });
     const quote = mockDatabase[0].quote;
     const { body: forecasts } = await request(app)
@@ -121,7 +117,7 @@ describe("stocks", () => {
   it("GET /stocks/:quote/forecast should return 204 if quote does not exist", async () => {
     jwt.verify.mockReturnValueOnce({
       userId: "efda0939-3101-f362-83fd-f3936fa3",
-      username: "stockguru"
+      username: "stockguru",
     });
     const quote = "MONK";
     const { body: selectedStock } = await request(app)
@@ -141,7 +137,7 @@ describe("stocks", () => {
       timeFrame: "3 months",
       title: "AAPL to be rangebound due to COVID-19 uncertainty",
       rationale:
-        "APPL announced that virus will have an impact on ongoing iPhone sales"
+        "APPL announced that virus will have an impact on ongoing iPhone sales",
     };
     const newForecast = {
       position: "neutral",
@@ -149,11 +145,11 @@ describe("stocks", () => {
       timeFrame: "3 months",
       title: "AAPL to be rangebound due to COVID-19 uncertainty",
       rationale:
-        "APPL announced that virus will have an impact on ongoing iPhone sales"
+        "APPL announced that virus will have an impact on ongoing iPhone sales",
     };
     jwt.verify.mockReturnValueOnce({
       userId: expectedForecast.userId,
-      username: expectedForecast.username
+      username: expectedForecast.username,
     });
     const { body: actualForecast } = await request(app)
       .post(`/stocks/${quote}/forecast`)
@@ -175,7 +171,7 @@ describe("stocks", () => {
       timeFrame: "3 months",
       title: "AAPL to be rangebound due to COVID-19 uncertainty",
       rationale:
-        "APPL announced that virus will have an impact on ongoing iPhone sales"
+        "APPL announced that virus will have an impact on ongoing iPhone sales",
     };
     jwt.verify.mockReturnValueOnce({});
     const { body: message } = await request(app)
@@ -192,11 +188,11 @@ describe("stocks", () => {
     const newForecast = {
       position: "neutral",
       targetPrice: "380",
-      title: "AAPL to be rangebound due to COVID-19 uncertainty"
+      title: "AAPL to be rangebound due to COVID-19 uncertainty",
     };
     jwt.verify.mockReturnValueOnce({
       userId: mockUserData[0].id,
-      username: mockUserData[0].username
+      username: mockUserData[0].username,
     });
     const { body: error } = await request(app)
       .post(`/stocks/${quote}/forecast`)
@@ -205,7 +201,7 @@ describe("stocks", () => {
       .expect(400);
     expect(error).toEqual({
       error:
-        "Validation failed: forecast: Validation failed: rationale: Path `rationale` is required., timeFrame: Path `timeFrame` is required."
+        "Validation failed: forecast: Validation failed: rationale: Path `rationale` is required., timeFrame: Path `timeFrame` is required.",
     });
 
     expect(jwt.verify).toHaveBeenCalledTimes(1);
@@ -214,7 +210,7 @@ describe("stocks", () => {
   it("PATCH /stocks/:quote/forecast/:id should allow forecast to be edited", async () => {
     jwt.verify.mockReturnValueOnce({
       userId: "efda0939-3101-f362-83fd-f3936fa3",
-      username: "stockguru"
+      username: "stockguru",
     });
     const quote = mockDatabase[0].quote;
     const id = mockDatabase[0].forecast[0].id;
@@ -230,7 +226,7 @@ describe("stocks", () => {
   it("PATCH /stocks/:quote/forecast/:id should not allow forecast to be edited after x days", async () => {
     jwt.verify.mockReturnValueOnce({
       userId: "0aaa648b-5d1d-bfc8-af4b-b1597a95",
-      username: "stockshorter"
+      username: "stockshorter",
     });
     const quote = mockDatabase[1].quote;
     const id = mockDatabase[1].forecast[1].id;
@@ -242,14 +238,14 @@ describe("stocks", () => {
       .send(editField)
       .expect(423);
     expect(editedForecast).toEqual({
-      error: "Unable to edit forecast after post is locked."
+      error: "Unable to edit forecast after post is locked.",
     });
   });
 
   it("PATCH /stocks/:quote/forecast/:id should not allow forecast to be edited if user is not original creator", async () => {
     jwt.verify.mockReturnValueOnce({
       userId: "efda0939-3101-f362-83fd-f3936fa3",
-      username: "stockguru"
+      username: "stockguru",
     });
     const quote = mockDatabase[1].quote;
     const id = mockDatabase[1].forecast[1].id;
@@ -260,7 +256,7 @@ describe("stocks", () => {
       .send(editField)
       .expect(403);
     expect(editedForecast).toEqual({
-      error: "You do not have permission to edit this post."
+      error: "You do not have permission to edit this post.",
     });
   });
 
@@ -273,11 +269,11 @@ describe("stocks", () => {
       timeFrame: "1 year",
       title: "Apple: The New iPhone Opportunity",
       rationale:
-        "One of the reasons that technology giant Apple (AAPL) has seen its shares soar to new all-time highs recently is the expected iPhone supercycle coming this year. With the company getting ready to launch new 5G compatible phones, investors are betting that iPhone upgrade rates will soar, leading to new revenue and profit records."
+        "One of the reasons that technology giant Apple (AAPL) has seen its shares soar to new all-time highs recently is the expected iPhone supercycle coming this year. With the company getting ready to launch new 5G compatible phones, investors are betting that iPhone upgrade rates will soar, leading to new revenue and profit records.",
     };
     jwt.verify.mockReturnValueOnce({
       userId: "efda0939-3101-f362-83fd-f3936fa3",
-      username: "stockguru"
+      username: "stockguru",
     });
     const quote = mockDatabase[0].quote;
     const id = mockDatabase[0].forecast[0].id;
@@ -297,11 +293,11 @@ describe("stocks", () => {
       timeFrame: "1 year",
       title: "Apple: The New iPhone Opportunity",
       rationale:
-        "One of the reasons that technology giant Apple (AAPL) has seen its shares soar to new all-time highs recently is the expected iPhone supercycle coming this year. With the company getting ready to launch new 5G compatible phones, investors are betting that iPhone upgrade rates will soar, leading to new revenue and profit records."
+        "One of the reasons that technology giant Apple (AAPL) has seen its shares soar to new all-time highs recently is the expected iPhone supercycle coming this year. With the company getting ready to launch new 5G compatible phones, investors are betting that iPhone upgrade rates will soar, leading to new revenue and profit records.",
     };
     jwt.verify.mockReturnValueOnce({
       userId: "0aaa648b-5d1d-bfc8-af4b-b1597a95",
-      username: "stockshorter"
+      username: "stockshorter",
     });
     const quote = mockDatabase[1].quote;
     const id = mockDatabase[1].forecast[1].id;
@@ -310,7 +306,7 @@ describe("stocks", () => {
       .set("Cookie", "token=valid-token")
       .expect(423);
     expect(error).toEqual({
-      error: "Unable to delete forecast after post is locked."
+      error: "Unable to delete forecast after post is locked.",
     });
   });
 
@@ -323,11 +319,11 @@ describe("stocks", () => {
       timeFrame: "1 year",
       title: "Apple: The New iPhone Opportunity",
       rationale:
-        "One of the reasons that technology giant Apple (AAPL) has seen its shares soar to new all-time highs recently is the expected iPhone supercycle coming this year. With the company getting ready to launch new 5G compatible phones, investors are betting that iPhone upgrade rates will soar, leading to new revenue and profit records."
+        "One of the reasons that technology giant Apple (AAPL) has seen its shares soar to new all-time highs recently is the expected iPhone supercycle coming this year. With the company getting ready to launch new 5G compatible phones, investors are betting that iPhone upgrade rates will soar, leading to new revenue and profit records.",
     };
     jwt.verify.mockReturnValueOnce({
       userId: "efda0939-3101-f362-83fd-f3936fa3",
-      username: "stockguru"
+      username: "stockguru",
     });
     const quote = mockDatabase[1].quote;
     const id = mockDatabase[1].forecast[1].id;
@@ -336,7 +332,7 @@ describe("stocks", () => {
       .set("Cookie", "token=valid-token")
       .expect(403);
     expect(error).toEqual({
-      error: "You do not have permission to delete this post."
+      error: "You do not have permission to delete this post.",
     });
   });
 

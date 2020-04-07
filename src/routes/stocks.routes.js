@@ -6,7 +6,7 @@ const Stocks = require("../models/stocks.model");
 const {
   FORECAST_FIELD,
   V_FIELD,
-  MONGOID_FIELD
+  MONGOID_FIELD,
 } = require("../utils/constantFields");
 const { protectRoute } = require("../middlewares/auth");
 const wrapAsync = require("../utils/wrapAsync");
@@ -72,7 +72,9 @@ const editOneForecast = async (req, res, next) => {
   const id = req.params.id;
 
   const filteredStock = await Stocks.findOne({ quote });
-  const index = filteredStock.forecast.map(forecast => forecast.id).indexOf(id);
+  const index = filteredStock.forecast
+    .map((forecast) => forecast.id)
+    .indexOf(id);
   const selectedForecast = filteredStock.forecast[index];
   const createdDate = selectedForecast.createdAt;
   const expiryDate = editPermissionExpiry(createdDate);
@@ -99,7 +101,9 @@ const deleteOneForecast = async (req, res, next) => {
   const id = req.params.id;
 
   const filteredStock = await Stocks.findOne({ quote });
-  const index = filteredStock.forecast.map(forecast => forecast.id).indexOf(id);
+  const index = filteredStock.forecast
+    .map((forecast) => forecast.id)
+    .indexOf(id);
   const createdDate = filteredStock.forecast[index].createdAt;
   const expiryDate = editPermissionExpiry(createdDate);
   const userId = filteredStock.forecast[index].userId;
